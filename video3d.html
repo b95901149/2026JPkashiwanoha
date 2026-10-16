@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant"><head><meta charset="utf-8">
+<html lang="zh-Hant"><head><meta charset="utf-8"><link rel="preconnect" href="https://www.youtube-nocookie.com"><link rel="preconnect" href="https://www.youtube.com"><link rel="preconnect" href="https://i.ytimg.com">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>3D 影片導航</title>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
@@ -73,8 +73,10 @@ a{color:var(--ac)}
 .cnav{display:flex;justify-content:space-between;margin-top:10px;gap:8px}
 .cnav button{flex:1;font-size:12px}
 /* 燈箱 */
-#lb{position:fixed;inset:0;z-index:9;background:rgba(2,4,10,.92);display:none;align-items:center;justify-content:center;flex-direction:column;padding:16px}
+#lb{position:fixed;inset:0;z-index:9;background:#02040a;display:none;align-items:center;justify-content:center;flex-direction:column;padding:16px}
 #lb.show{display:flex}
+/* 播放時停掉 3D 地圖與面板的繪製（逐幀動畫＋地形＋backdrop-filter 會和 YouTube 搶 GPU，造成卡頓；2026-10-16） */
+body.lbopen>*:not(#lb){visibility:hidden}
 #lbf{width:min(96vw,1100px,calc(82vh*16/9));aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 0 60px rgba(94,231,255,.25)}
 #lbf iframe{width:100%;height:100%;border:0;display:block}
 #lbf{position:relative}#lbf .lbgo{position:absolute;inset:0;margin:auto;width:max-content;height:max-content;padding:14px 26px;border-radius:30px;background:#c4302b;color:#fff;font-size:18px;font-weight:600;text-decoration:none}
@@ -275,8 +277,8 @@ function openYT(i){const v=V[i];if(!v||!v.yt){toast(TX.noyt);return;}if(tour&&!t
   $('lbt').innerHTML=`<b>${esc(ttl(v))}</b><small>${esc(TX.file)}</small>`;$('lb').classList.add('show');return;}
  $('lbf').innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${v.yt}?autoplay=1&rel=0" title="YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
  $('lbt').innerHTML=`<b>${esc(ttl(v))}</b><small>${location.protocol==='file:'?esc(TX.file)+' · ':''}<a href="https://youtu.be/${v.yt}" target="_blank" rel="noopener">${TX.yt}</a></small>`;
- $('lb').classList.add('show');}
-function closeLB(){$('lb').classList.remove('show');$('lbf').innerHTML='';if(cur>=0&&$('card').style.display==='block'){const p=$('cvid').play();if(p&&p.catch)p.catch(()=>{});}}
+ $('lb').classList.add('show');document.body.classList.add('lbopen');}
+function closeLB(){$('lb').classList.remove('show');document.body.classList.remove('lbopen');if(typeof map!=='undefined')map.triggerRepaint();$('lbf').innerHTML='';if(cur>=0&&$('card').style.display==='block'){const p=$('cvid').play();if(p&&p.catch)p.catch(()=>{});}}
 $('lbx').onclick=closeLB;$('lb').onclick=e=>{if(e.target.id==='lb')closeLB();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('lb').classList.contains('show'))closeLB();else hideCard();}
  if(['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName))return;
@@ -288,7 +290,7 @@ function ripple(i){const v=V[i];map.getSource('rip').setData({type:'FeatureColle
  ripT=RM?-1:performance.now();if(RM){map.setPaintProperty('rip1','circle-radius',26);map.setPaintProperty('rip1','circle-stroke-opacity',.8);}}
 const DASH=[[0,4,3],[0.5,4,2.5],[1,4,2],[1.5,4,1.5],[2,4,1],[2.5,4,0.5],[3,4,0],[0,0.5,3,3.5],[0,1,3,3],[0,1.5,3,2.5],[0,2,3,2],[0,2.5,3,1.5],[0,3,3,1],[0,3.5,3,0.5]];
 let dashI=-1;
-function frame(t){requestAnimationFrame(frame);if(!ready||RM||document.hidden)return;
+function frame(t){requestAnimationFrame(frame);if(!ready||RM||document.hidden||document.body.classList.contains('lbopen'))return;
  const ph=(t%2200)/2200;map.setPaintProperty('v-halo','circle-radius',9+ph*20);map.setPaintProperty('v-halo','circle-opacity',['*',.55*(1-ph),['coalesce',['feature-state','a'],1]]);
  const di=Math.floor(t/70)%DASH.length;if(di!==dashI){dashI=di;map.setPaintProperty('trk-flow','line-dasharray',DASH[di]);}
  if(ripT>=0){const e=(t-ripT)/1700;if(e>1.3){ripT=-1;['rip1','rip2'].forEach(l=>map.setPaintProperty(l,'circle-stroke-opacity',0));}

@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="zh-TW"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><link rel="preconnect" href="https://www.youtube-nocookie.com"><link rel="preconnect" href="https://www.youtube.com"><link rel="preconnect" href="https://i.ytimg.com"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2026 8-10月日本東京大學柏校區交換研究旅遊紀錄 · Derek Lin 林致翰</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -423,8 +423,11 @@ a.gd3dgo{background:#ffb020;color:#111;font-weight:700;}a.gd3dq{background:rgba(
  font-size:11px;line-height:18px;text-align:center;box-sizing:border-box;}
 #pvw.vid{width:300px;}
 #pvw .gdvpv{width:100%;max-height:320px;border-radius:7px;background:#000;display:block;object-fit:contain;margin-bottom:6px;}
-#gdvlb{display:none;position:fixed;inset:0;z-index:10000;background:rgba(10,10,12,.93);align-items:center;justify-content:center;}
+#gdvlb{display:none;position:fixed;inset:0;z-index:10000;background:#0a0a0c;align-items:center;justify-content:center;}
 #gdvlb.on{display:flex;}
+/* 播放時把頁面其餘部分整個不繪製：背景的地圖、動畫會和 YouTube 搶 GPU，造成卡頓（2026-10-16） */
+body.gdvlbopen>*:not(#gdvlb){visibility:hidden;}
+body.gdvlbopen *{animation-play-state:paused!important;}
 #gdvlbbox{width:min(960px,94vw,140vh);}
 #gdvlbbar{display:flex;align-items:center;gap:10px;color:#eee;font-size:14px;margin-bottom:8px;}
 #gdvlbt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -467,7 +470,7 @@ a.gd3dgo{background:#ffb020;color:#111;font-weight:700;}a.gd3dq{background:rgba(
 </style></head><body>
 <div class="hd">
   <div class="lang"><button id="langzh" class="on" onclick="setLang('zh')">中文</button><button id="langja" onclick="setLang('ja')">日本語</button></div>
-  <h1 data-i18n="title">2026 8-10月日本東京大學柏校區交換研究旅遊紀錄</h1><p class="by">Derek Lin 林致翰</p><p class="upd"><span class="gz">最後更新：</span><span class="gj">最終更新：</span>2026-10-16 20:08</p><p data-i18n="sub"></p></div>
+  <h1 data-i18n="title">2026 8-10月日本東京大學柏校區交換研究旅遊紀錄</h1><p class="by">Derek Lin 林致翰</p><p class="upd"><span class="gz">最後更新：</span><span class="gj">最終更新：</span>2026-10-16 20:26</p><p data-i18n="sub"></p></div>
 <div class="tabs"><div class="tb on" onclick="tab('map',this)" data-i18n="tab_map">🗺️ 地圖</div><div class="tb" onclick="tab('stat',this)" data-i18n="tab_stat">📊 統計</div><div class="tb" onclick="tab('report',this)" data-i18n="tab_report">📈 數據</div><div class="tb" onclick="tab('ana',this)" data-i18n="tab_ana">🔬 專業分析</div><div class="tb" onclick="tab('gos',this)" data-i18n="tab_gos">⛩️ 御朱印</div><div class="tb" onclick="tab('sake',this)" data-i18n="tab_sake">🍶 酒類</div><div class="tb" onclick="tab('tour',this)" data-i18n="tab_tour">🧳 旅遊路線</div><div class="tb" onclick="tab('guide',this)" data-i18n="tab_guide">🧭 旅遊指引</div><div class="tb" onclick="tab('food',this)" data-i18n="tab_food">🍜 美食</div></div>
 
 <div id="pg-map" class="pg on">
@@ -2202,11 +2205,11 @@ function gdVid(gi,j){
   }
   document.getElementById('gdvlbs').innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+v.y+'?autoplay=1&rel=0" title="YouTube" '+
     'allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
-  lb.classList.add('on');
+  lb.classList.add('on'); document.body.classList.add('gdvlbopen');
 }
 function gdVClose(e){
   if(e && e.target && e.target.id!=='gdvlb' && e.target.id!=='gdvlbx') return;
-  document.getElementById('gdvlb').classList.remove('on');
+  document.getElementById('gdvlb').classList.remove('on'); document.body.classList.remove('gdvlbopen');
   document.getElementById('gdvlbs').innerHTML='';   // 移除 iframe＝停止播放
 }
 document.addEventListener('keydown',function(e){
